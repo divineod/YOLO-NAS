@@ -1,4 +1,5 @@
 from super_gradients.training import models
+from super_gradients.common.object_names import Models
 import torch
 import cv2
 import random
@@ -53,13 +54,27 @@ def get_bbox(img):
 
 
 # Load YOLO-NAS Model
-model = models.get(
-    args['model'],
-    num_classes=args['num'], 
-    checkpoint_path=args["weight"]
-)
+# model = models.get(
+#     args['model'],
+#     num_classes=args['num'],
+#     checkpoint_path=args["weight"]
+# )
+# model = models.get(Models.yolo_nas_m, num_classes=no_class, pretrained_weights="coco")
+# model = models.get(Models.YOLO_NAS_M, num_classes=10, pretrained_weights="coco")
+model = models.get("yolo_nas_l", pretrained_weights="coco").cuda()
+# model_predictions = model.predict(args['source']).show()
+model.predict("model_predictions/dog_bike_car.jpg").show()
+test = model.predict(args['source'])
+# prediction = model_predictions[0].prediction # One prediction per image - Here we work with 1 image so we get the first.
+# bboxes = prediction.bboxes_xyxy  # [[Xmin,Ymin,Xmax,Ymax],..] list of all annotation(s) for detected object(s)
+prediction = test._images_prediction_lst[0]
+bboxes = prediction.prediction.bboxes_xyxy
+class_names = prediction.class_names  # ['Class1', 'Class2', ...] List of the class names
+class_name_indexes = prediction.prediction.labels.astype(int) # [2, 3, 1, 1, 2, ....] Index of each detected object in class_names(corresponding to each bounding box)
+confidences = prediction.prediction.confidence.astype(float)
+
 model = model.to("cuda" if torch.cuda.is_available() else "cpu")
-class_names = model.predict(np.zeros((1,1,3)), conf=args['conf'])._images_prediction_lst[0].class_names
+# class_names = model.predict(np.zeros((1,1,3)), conf=args['conf'])._images_prediction_lst[0].class_names
 print('Class Names: ', class_names)
 colors = [[random.randint(0, 255) for _ in range(3)] for _ in class_names]
 

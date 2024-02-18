@@ -1,4 +1,4 @@
-Dir: 'Data'
+Dir: 'Dataset'
 images:
   test: test
   train: train
@@ -6,4 +6,4 @@ images:
 labels:
   test: annotations/test.json
   train: annotations/train.json
-  val: annotations/valid.json
+  val: annotations/val.json
